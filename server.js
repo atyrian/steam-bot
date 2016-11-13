@@ -4,7 +4,13 @@ var path = require('path');
 var app = express();
 
 var DEFAULT_PORT = 1337;
-var port = DEFAULT_PORT;
+var port = '';
+
+if (!process.env.port) {
+    port = DEFAULT_PORT;
+}   else {
+    port = process.env.port;
+}
 
 app.use(bodyParser());
 app.use(express.static(path.join(__dirname, './public')));
