@@ -33,6 +33,7 @@ var steamUser = new Steam.SteamUser(steamClient);
 var steamFriends = new Steam.SteamFriends(steamClient);
 var steamGC = new Steam.SteamGameCoordinator(steamClient, 730);
 var CSGO = new csgo.CSGOClient(steamUser, steamGC, false);
+var msg;
 
 steamClient.connect();
 steamClient.on('connected', () => {
@@ -48,25 +49,34 @@ steamClient.on('logOnResponse', (logonResp) => {
         console.log(logonResp.eresult);
     }
 
-    steamFriends.setPersonaState(Steam.EPersonaState.Offline);
+    steamFriends.setPersonaState(Steam.EPersonaState.Online);
     steamFriends.setPersonaName('BOT v1.0');
     console.log("Logged on.");
     console.log("Current SteamID64: " + steamClient.steamID);
     console.log("Account ID: " + CSGO.ToAccountID(steamClient.steamID));
     CSGO.launch();
+    var i = 0;
 
     CSGO.on('ready', () => {
         console.log("node-csgo ready.");
 
-        CSGO.playerProfileRequest(CSGO.ToAccountID(steamClient.steamID));
-        CSGO.on("playerProfile", (profile) => {
-            console.log("Profile");
-            console.log("Player Rank: " + CSGO.Rank.getString(profile.account_profiles[0].ranking.rank_id));
-            console.log(JSON.stringify(profile, null, 2));
-        });
-
-        steamFriends.on('message', function (source, message, type, chatter) {
+        steamFriends.on('friendMsg', function (source, message, type) {
             console.log('Received message: ' + message);
+            if (message !== "") {
+                CSGO.playerProfileRequest(CSGO.ToAccountID(source));
+                CSGO.on("playerProfile", (profile) => {
+                    if (profile.account_profiles[0]) {
+                        msg = ("Your Rank is currently: " + CSGO.Rank.getString(profile.account_profiles[0].ranking.rank_id) + ". If this is not your current rank, prompt me again");
+                        steamFriends.sendMessage(source, msg, Steam.EChatEntryType.ChatMsg);
+                    } else {
+                        steamFriends.sendMessage(source, 'Please log into CS:GO and prompt me for your rank', Steam.EChatEntryType.ChatMsg);
+                        console.log('DEBUGG I HAVE BEEN HIT', i++);
+                    }
+
+                });
+            } else {
+                console.log('Empty Message');
+            }
             switch (source) {
                 case '76561198018608481':
                     steamFriends.sendMessage(source, 'Invalid operation: Hurley detected', Steam.EChatEntryType.ChatMsg);
@@ -77,7 +87,6 @@ steamClient.on('logOnResponse', (logonResp) => {
                     break;
 
                 default:
-                    steamFriends.sendMessage(source, 'I am a BOT written in Node.js by @Kryddan. I will retrieve and persist your CS:GO rank', Steam.EChatEntryType.ChatMsg);
                     break;
             }
         });
