@@ -61,17 +61,24 @@ steamClient.on('logOnResponse', (logonResp) => {
         CSGO.playerProfileRequest(CSGO.ToAccountID(steamClient.steamID));
         CSGO.on("playerProfile", (profile) => {
             console.log("Profile");
-            console.log("Player Rank: " + CSGO.Rank.getString(profile.account_profiles[0].ranking.rank_id))
+            console.log("Player Rank: " + CSGO.Rank.getString(profile.account_profiles[0].ranking.rank_id));
             console.log(JSON.stringify(profile, null, 2));
         });
 
         steamFriends.on('message', function (source, message, type, chatter) {
             console.log('Received message: ' + message);
-            if (message == 'ping') {
-                steamFriends.sendMessage(source, 'pong',
-                    Steam.EChatEntryType.ChatMsg);
-            } else if (message !== "") {
-                steamFriends.sendMessage(source, 'Invalid Command');
+            switch (source) {
+                case '76561198018608481':
+                    steamFriends.sendMessage(source, 'Invalid operation: Hurley detected', Steam.EChatEntryType.ChatMsg);
+                    break;
+
+                case '76561198008736843':
+                    steamFriends.sendMessage(source, 'Invalid operation: Bögwille detected', Steam.EChatEntryType.ChatMsg);
+                    break;
+
+                default:
+                    steamFriends.sendMessage(source, 'I am a BOT written in Node.js by @Kryddan. I will retrieve and persist your CS:GO rank', Steam.EChatEntryType.ChatMsg);
+                    break;
             }
         });
     });
