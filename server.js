@@ -22,13 +22,11 @@ if (!process.env.port) {
 
 } else {
     port = process.env.port;
+    details = {
+        "accountName": process.env.account_name,
+        "password": process.env.password
+    };
 }
-
-var rl = readline.createInterface({
-    "input": process.stdin,
-    "output": process.stdout
-});
-
 var steamClient = new Steam.SteamClient();
 var steamUser = new Steam.SteamUser(steamClient);
 var steamFriends = new Steam.SteamFriends(steamClient);
@@ -49,7 +47,7 @@ steamClient.on('logOnResponse', (logonResp) => {
         console.log(logonResp.eresult);
     }
 
-    steamFriends.setPersonaState(Steam.EPersonaState.Online);
+    steamFriends.setPersonaState(Steam.EPersonaState.Offline);
     steamFriends.setPersonaName('BOT v1.0');
     console.log("Logged on.");
     console.log("Current SteamID64: " + steamClient.steamID);
@@ -79,7 +77,7 @@ steamClient.on('logOnResponse', (logonResp) => {
 
 });
 steamClient.on('error', (error) => {
-    console.log('Error');
+    console.log('Error', error);
 });
 
 app.use(bodyParser.json());
