@@ -27,6 +27,7 @@ if (!process.env.port) {
         "password": process.env.password
     };
 }
+
 var steamClient = new Steam.SteamClient();
 var steamUser = new Steam.SteamUser(steamClient);
 var steamFriends = new Steam.SteamFriends(steamClient);
