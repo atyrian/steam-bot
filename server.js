@@ -76,6 +76,14 @@ steamClient.on('logOnResponse', (logonResp) => {
         });
     });
 
+    CSGO.on("unready", function onUnready() {
+        console.log("node-csgo unready.");
+    });
+
+    CSGO.on("unhandled", function (kMsg) {
+        console.log("UNHANDLED MESSAGE " + kMsg);
+    });
+
 });
 steamClient.on('error', (error) => {
     console.log('Error', error);
