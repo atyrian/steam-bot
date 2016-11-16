@@ -19,7 +19,6 @@ if (!process.env.port) {
         "password": credentials.steamAccount.password
     };
     port = DEFAULT_PORT;
-
 } else {
     port = process.env.port;
     details = {
