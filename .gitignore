@@ -3,8 +3,11 @@ logs
 *.log
 npm-debug.log*
 todo
+
+# Secrets
 secrets.json
 twostep.js
+util
 
 # Runtime data
 pids
