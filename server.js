@@ -63,7 +63,7 @@ steamClient.on('logOnResponse', (logonResp) => {
             console.log(profile);
             if (profile.account_profiles[0]) {
                 var source = CSGO.ToSteamID(profile.account_profiles[0].account_id);
-                msg = ("Your Rank is currently: " + CSGO.Rank.getString(profile.account_profiles[0].ranking.rank_id) + ". If this is not your current rank, try logging in and out again");
+                msg = ("Your Rank is currently: " + CSGO.Rank.getString(profile.account_profiles[0].ranking.rank_id) + ". If this is not your current rank, try launching CS:GO again.");
                 steamFriends.sendMessage(source, msg, Steam.EChatEntryType.ChatMsg);
             } else {
                 console.log('The response object was empty, try again');
