@@ -90,22 +90,22 @@ steamClient.on('logOnResponse', (logonResp) => {
             console.log('Received message: ' + message);
             if (message !== "") {
                 msg = 'Hi! I am a BOT written by @Kryddan. My purpose is to scan for your CS:GO rank and persist it to a database. If you wish to register your rank, simply log into CS:GO and I will send you a message containing the rank I have stored for your profile. After you receive my message, you can safely remove me from your friend list. Should you wish to update me with your new rank, just add me again and I will update the database.';
-                steamFriends.sendMessage(source, msg, type);
+                switch (source) {
+                    case '76561198018608481':
+                        steamFriends.sendMessage(source, 'Invalid operation: Hurley detected. Initiating permanent ban sequence.', Steam.EChatEntryType.ChatMsg);
+                        break;
+
+                    case '76561198008736843':
+                        steamFriends.sendMessage(source, 'Invalid operation: William detected. Initiating permanent ban sequence.', Steam.EChatEntryType.ChatMsg);
+                        break;
+
+                    default:
+                        steamFriends.sendMessage(source, msg, type);;
+                }
             } else {
                 console.log('Empty Message');
             }
-            switch (source) {
-                case '76561198018608481':
-                    steamFriends.sendMessage(source, 'Invalid operation: Hurley detected. Initiating permanent ban sequence.', Steam.EChatEntryType.ChatMsg);
-                    break;
 
-                case '76561198008736843':
-                    steamFriends.sendMessage(source, 'Invalid operation: William detected. Initiating permanent ban sequence.', Steam.EChatEntryType.ChatMsg);
-                    break;
-
-                default:
-                    break;
-            }
         });
     });
 
