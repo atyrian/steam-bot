@@ -11,6 +11,8 @@ var app = express();
 var DEFAULT_PORT = 1337;
 var port = '';
 var details = {};
+var friendsArray = [];
+var msg;
 
 if (!process.env.port) {
     var credentials = require('./secrets.json');
@@ -27,12 +29,25 @@ if (!process.env.port) {
     };
 }
 
+var addPendingFriendRequests = () => {
+    for (var i = 0; i < friendsArray.length; i++) {
+        var obj = friendsArray[i];
+        for (var key in obj) {
+            var steamID = key;
+            var EFriendRelationshipStatus = obj[key];
+            if (EFriendRelationshipStatus == '2') {
+                steamFriends.addFriend(steamID);
+                steamFriends.sendMessage(steamID, 'Hi, I am a bot. Start CS:GO and I will collect your rank.', Steam.EChatEntryType.ChatMsg);
+            }
+        }
+    }
+};
+
 var steamClient = new Steam.SteamClient();
 var steamUser = new Steam.SteamUser(steamClient);
 var steamFriends = new Steam.SteamFriends(steamClient);
 var steamGC = new Steam.SteamGameCoordinator(steamClient, 730);
 var CSGO = new csgo.CSGOClient(steamUser, steamGC, false);
-var msg;
 
 steamClient.connect();
 steamClient.on('connected', () => {
@@ -50,14 +65,15 @@ steamClient.on('logOnResponse', (logonResp) => {
 
     steamFriends.setPersonaState(Steam.EPersonaState.Online);
     steamFriends.setPersonaName('BOT v1.0');
+    friendsArray.push(steamFriends.friends);
     console.log("Logged on.");
     console.log("Current SteamID64: " + steamClient.steamID);
     console.log("Account ID: " + CSGO.ToAccountID(steamClient.steamID));
     CSGO.launch();
 
-
     CSGO.on('ready', () => {
         console.log("node-csgo ready.");
+
 
         CSGO.on("playerProfile", (profile) => {
             console.log(profile);
@@ -87,25 +103,31 @@ steamClient.on('logOnResponse', (logonResp) => {
 
         steamFriends.on('friendMsg', function (source, message, type) {
             console.log('Received message: ' + message);
+
             if (message !== "") {
                 msg = 'Hi! I am a BOT written by @Kryddan. My purpose is to scan for your CS:GO rank and persist it to a database. If you wish to register your rank, simply log into CS:GO and I will send you a message containing the rank I have stored for your profile. After you receive my message, you can safely remove me from your friend list. Should you wish to update me with your new rank, just add me again and I will update the database.';
-                switch (source) {
-                    case '76561198018608481':
-                        steamFriends.sendMessage(source, 'Invalid operation: Hurley detected. Initiating permanent ban sequence.', Steam.EChatEntryType.ChatMsg);
-                        break;
 
-                    case '76561198008736843':
-                        steamFriends.sendMessage(source, 'Invalid operation: William detected. Initiating permanent ban sequence.', Steam.EChatEntryType.ChatMsg);
-                        break;
-
-                    default:
-                        steamFriends.sendMessage(source, msg, type);;
-                }
+                steamFriends.sendMessage(source, msg, Steam.EChatEntryType.ChatMsg);
             } else {
                 console.log('Empty Message');
             }
 
         });
+
+        steamFriends.on('friend', (steamID, EFriendRelationship) => {
+            if (EFriendRelationship == 2) {
+                console.log('Received friendrequest from: ', steamID);
+                steamFriends.addFriend(steamID);
+                console.log('Added friend: ', steamID);
+                steamFriends.sendMessage(steamID, 'Hi, I am a bot. Start CS:GO and I will collect your rank.', Steam.EChatEntryType.ChatMsg);
+            }
+        });
+
+        steamFriends.on('relationships', () => {
+            console.log('This is the friends property: ', steamFriends.friends);
+        });
+
+        addPendingFriendRequests();
     });
 
     CSGO.on("unready", function onUnready() {
